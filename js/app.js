@@ -7,22 +7,35 @@ let app = new PIXI.Application({
         backgroundColor: 0x000000
 });
 
-document.body.appendChild(app.view);
+document.body.appendChild(app.view); //adding the application to document in order to view
 
 let container = new PIXI.Container();
 
-app.stage.addChild(container);
-
-let texture = PIXI.Texture.from("images/spaceship.png");
-
-let spaceship = new PIXI.Sprite(texture);
-
-container.addChild(spaceship);
-
-spaceship.anchor.set(0.5);
-
 container.x = app.screen.width / 2;
 container.y = app.screen.height / 2;
+
+
+let texture = PIXI.Texture.from("images/spaceship.png"); //creating texture from image
+
+let spaceship = new PIXI.Sprite(texture); //creating sprite from texture
+
+spaceship.anchor.set(0.5); //set sprite position to center of app
+spaceship.x = app.view.width / 2;
+spaceship.y = app.view.height / 2;
+
+app.stage.addChild(container);
+container.addChild(spaceship);
+
+//mouse tracking function
+let movePlayer = (e) => {
+    let pos = e.data.global;
+
+    spaceship.x = pos.x;
+    spaceship.y = pos.y;
+};
+
+app.stage.interactive = true;
+app.stage.on("pointermove", movePlayer);
 
 
 let surface;
