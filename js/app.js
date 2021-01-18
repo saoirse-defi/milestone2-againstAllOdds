@@ -1,45 +1,122 @@
 const WINDOW_WIDTH = $(window).innerHeight();
 const WINDOW_HEIGHT = $(window). innerWidth();
 
-let app = new PIXI.Application({
+let app, surface, container, texture, keyTracker;
+let spaceship, keys = {};
+
+window.onload = () => {
+     app = new PIXI.Application({
         width: 1000,
         height: 666,
         backgroundColor: 0x000000
-});
+    });
 
-document.body.appendChild(app.view); //adding the application to document in order to view
+    document.querySelector("#game-div").appendChild(app.view); //adding the application to document in order to view
 
-let container = new PIXI.Container();
+    //preloading assets for performance
+    app.loader.baseUrl = "images";
+    app.loader.add("spaceship", "spaceship.png"); //only asset so far
 
-container.x = app.screen.width / 2;
-container.y = app.screen.height / 2;
+    app.loader.onProgress.add(loadingStatus);
+    app.loader.onError.add(errorReport);
+    app.loader.onComplete.add(loadingFinished);
+
+    app.loader.load();
 
 
-let texture = PIXI.Texture.from("images/spaceship.png"); //creating texture from image
+    // no longer needed [texture = PIXI.Texture.from("images/spaceship.png");] //creating texture from image
 
-let spaceship = new PIXI.Sprite(texture); //creating sprite from texture
 
-spaceship.anchor.set(0.5); //set sprite position to center of app
-spaceship.x = app.view.width / 2;
-spaceship.y = app.view.height / 2;
+    //[spaceship = new PIXI.Sprite(texture);] //creating sprite from texture
 
-app.stage.addChild(container);
-container.addChild(spaceship);
+
+    //app.stage.on("pointermove", movePlayer);
+
+}
+
+//loader progress functions and error reporting
+
+    let loadingStatus = (e) => {
+
+    }
+
+    let errorReport = (e) => {
+        console.error("Error: " + e.message);
+    }
+
+    let loadingFinished = (e) => {
+        container = new PIXI.Container({ //fixed sprite not centering issue
+            width: 1000,
+            height: 666
+        });
+
+        spaceship = PIXI.Sprite.from(app.loader.resources.spaceship.texture);
+        spaceship.anchor.set(0.5); //set sprite position to center of app
+        spaceship.x = app.view.width / 2;
+        spaceship.y = app.view.height / 2;
+
+        container.addChild(spaceship);
+
+        app.stage.addChild(container);
+
+        app.stage.interactive = true;
+
+        //keyboard event handlers
+        window.addEventListener("keydown", keyPressed);
+        window.addEventListener("keyup", keyReleased);
+
+
+        app.ticker.add(gameLoop);
+
+
+        keyTracker = document.querySelector("#keys");
+
+    }
+
 
 //mouse tracking function
-let movePlayer = (e) => {
-    let pos = e.data.global;
+/*
+    let movePlayer = (e) => {
+        let pos = e.data.global;
 
-    spaceship.x = pos.x;
-    spaceship.y = pos.y;
-};
+        spaceship.x = pos.x;
+        spaceship.y = pos.y;
+    };
+*/
+    
+//keyboard functions
+    let keyPressed = (e) => {
+        keys[e.keyCode] = true;
+    }
 
-app.stage.interactive = true;
-app.stage.on("pointermove", movePlayer);
+    let keyReleased = (e) => {
+        keys[e.keyCode] = false;
+    }
 
 
-let surface;
+    //this function will contain most of game logic ie. updating positioning, key press, collision detection
+    let gameLoop = () => {
+        keyTracker.innerHTML = JSON.stringify(keys);
 
+        //W key
+        if(keys["87"]){
+            spaceship.y -= 5; //5 being movement speed, lets set as own variable later
+        }
+        //A key
+        if(keys["65"]){
+            spaceship.x -= 5;
+        }
+        //S key
+        if(keys["83"]){
+            spaceship.y += 5;
+        }
+        //D key
+        if(keys["68"]){
+            spaceship.x += 5;
+        }
+
+
+    }
 
 /*
 let game = {
