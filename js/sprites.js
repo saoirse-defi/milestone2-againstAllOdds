@@ -1,4 +1,21 @@
+class Human extends PIXI.Sprite{
+    constructor(x = app.view.width/2, y = app.view.height/2, texture, speed = 8, radius = 1){
+        super(texture);
+        this.anchor.set(0.5);
+    }
+}
 
+
+class Alien extends PIXI.Sprite{
+    constructor(x, y, texture, speed, radius){
+        super(texture);
+        this.anchor.set(0.5);
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.radius = radius;
+    }
+}
 
 
 let player = {
