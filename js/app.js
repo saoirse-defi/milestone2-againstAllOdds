@@ -1,11 +1,10 @@
 const WINDOW_WIDTH = $(window).innerHeight();
 const WINDOW_HEIGHT = $(window). innerWidth();
 
-let app, surface, container, texture, keyTracker;
+let app, surface, container, texture, keyTracker, theGame;
 let keys = {};
 let hero = {};
 let enemy = {};
-let theGame = {};
 
 class Human extends PIXI.Sprite{
     constructor(x, y, width, height, texture, speed, radius){
@@ -38,26 +37,30 @@ class Alien extends PIXI.Sprite{
 
 let game = {
     init: () => {
-        this.hero = heroCreation();
-        this.enemy = enemyCreation();
+        heroCreation();
+        enemyCreation();
         this.gameLoop();
     },
 
 
-    errorReport: (e) => {
-        console.log(e);
+    heroCreation: () => {
+        this.hero = new Human(500, 550, 30, 30, app.loader.resources["hero"].texture, 8, 1);
     },
 
-    loadingFinished: (e) => {
+    enemyCreation: () => {
+        this.enemy = new Alien(app.view.width/2, app.view.height/2, 30, 30, app.loader.resources["enemy"].texture, 6, 100, 2);
+    },
+
+    loadingFinished: () => {
         this.container = new PIXI.Container({ //fixed sprite not centering issue
             width: 1000,
             height: 666
         });
 
-        this.container.addChild(hero);
-        this.container.addChild(enemy);
+        this.container.addChild(this.hero);
+        this.container.addChild(this.enemy);
 
-        app.stage.addChild(container);
+        app.stage.addChild(this.container);
 
         app.stage.interactive = true;
 
@@ -71,14 +74,6 @@ let game = {
 
         this.keyTracker = document.querySelector("#keys");
 
-    },
-
-    heroCreation: () => {
-        this.hero = new Human(500, 550, 30, 30, app.loader.resources["hero"].texture, 8, 1);
-    },
-
-    enemyCreation: () => {
-        this.enemy = new Alien(app.view.width/2, app.view.height/2, 30, 30, app.loader.resources["enemy"].texture, 6, 100, 2);
     },
 
     gameLoop: () => {
@@ -103,6 +98,20 @@ let game = {
     }
 }
 
+//keyboard functions
+    let keyPressed = (e) => {
+        keys[e.keyCode] = true;
+    }
+
+    let keyReleased = (e) => {
+        keys[e.keyCode] = false;
+    }
+
+
+let errorReport = (e) => {
+    console.log("Error: " + e);
+}
+
 
 window.onload = () => {
 
@@ -114,17 +123,20 @@ window.onload = () => {
 
     document.querySelector("#game-div").appendChild(app.view);
     
-    theGame = Object.create(game);
 
     app.loader.baseUrl = "images";
     app.loader
         .add("hero", "hero.png")
         .add("enemy", "enemy.png");
 
-    app.loader.onError.add(theGame.errorReport());
-    app.loader.onComplete.add(theGame.loadingFinished());
-
+    theGame = Object.create(game);
     theGame.init(); 
+
+    //app.loader.onError.add(errorReport());
+    app.loader.onComplete.add(theGame.loadingFinished);
+
+    app.loader.load();
+
 
    /* canvas = document.querySelector("#game-div");
 	canvas.width = WINDOW_WIDTH;
@@ -132,7 +144,6 @@ window.onload = () => {
 	drawingSurface = canvas.getContext("2d"); */
 
 }
-
 
 
 
@@ -145,15 +156,7 @@ window.onload = () => {
         hero.y = pos.y;
     };
 */
-    
-//keyboard functions
-    let keyPressed = (e) => {
-        keys[e.keyCode] = true;
-    }
 
-    let keyReleased = (e) => {
-        keys[e.keyCode] = false;
-    }
 
 
     //this function will contain most of game logic ie. updating positioning, key press, collision detection
