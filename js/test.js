@@ -1,12 +1,10 @@
 const WINDOW_WIDTH = $(window).innerHeight();
 const WINDOW_HEIGHT = $(window). innerWidth();
 
-let app, surface, texture, theGame;
+let app, surface, texture, theGame, hero, alien1;
 let container = {};
 let keyTracker = {};
 let keys = {};
-let hero = {};
-let alien1 = {};
 let enemy = {};
 
 class Human extends PIXI.Sprite{
@@ -34,11 +32,28 @@ class Alien extends PIXI.Sprite{
         this.speed = speed;
         this.reward = reward;
         this.radius = radius;
+        this.xVel = 0;
+        this.yVel = 0;
+    }
+
+    hone(a, b) {
+        let dx = a - this.x;
+        let dy = b - this.y;
+        let honeAngle = Math.atan2(dy, dx);
+
+        this.xVel = this.speed * Math.cos(honeAngle);
+        this.yVel = this.speed * Math.sin(honeAngle);
+    }
+
+    stayWithinBounds() {
+        //don't know if WINDOW_WIDTH/WINDOW_HEIGHT is the correct variable
+        this.x = Math.max(0 + this.radius, Math.min(this.x + this.xVel, WINDOW_WIDTH - this.radius));
+        this.y = Math.max(0 + this.radius, Math.min(this.y + this.yVel, WINDOW_HEIGHT - this.radius));
     }
 }
 
 
-let gameLoop = () => {
+let gameLoop = (delta) => {
 
     keyTracker.innerHTML = JSON.stringify(keys);
 
@@ -58,6 +73,8 @@ let gameLoop = () => {
         if(keys["68"]){
             hero.x += 5;
         }
+
+    alien1.hone(hero.x, hero.y);
 }
 
  //keyboard functions
