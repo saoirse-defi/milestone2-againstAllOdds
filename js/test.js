@@ -23,6 +23,7 @@ class Human extends PIXI.Sprite{
         this.yVel = 0;
     }
 
+    //keeps hero within canvas bounds
     stayWithinArea(){
         this.x = Math.max(0 + this.radius, Math.min(this.x + this.xVel, 1000 - this.radius));
         this.y = Math.max(0 + this.radius, Math.min(this.y + this.yVel, 666 - this.radius));
@@ -45,6 +46,7 @@ class Alien extends PIXI.Sprite{
         this.yVel = 0;
     }
 
+    //tracks hero
     hone(a, b) {
         let dx = a - this.x;
         let dy = b - this.y;
@@ -86,7 +88,7 @@ class Alien extends PIXI.Sprite{
         }
     }
     
-
+    //keeps alien within canvas bounds
     stayWithinBounds(a, b) {
         this.hone(a, b);
         //don't know if WINDOW_WIDTH/WINDOW_HEIGHT is the correct variable
@@ -102,19 +104,19 @@ let gameLoop = (delta) => {
 
         //W key
         if(keys["87"]){
-            hero.y -= 5; //5 being movement speed, lets set as own variable later
+            hero.y -= hero.speed; //5 being movement speed, lets set as own variable later
         }
         //A key
         if(keys["65"]){
-            hero.x -= 5;
+            hero.x -= hero.speed;
         }
         //S key
         if(keys["83"]){
-            hero.y += 5;
+            hero.y += hero.speed;
         }
         //D key
         if(keys["68"]){
-            hero.x += 5;
+            hero.x += hero.speed;
         }
 }
 
@@ -173,7 +175,7 @@ let loadingFinished = () => {
 }
 
 let initialSpawn = () => {
-    hero = new Human(app.view.width/2, app.view.height/2, 30, 30, app.loader.resources["hero"].texture, 8, 1);
+    hero = new Human(app.view.width/2, app.view.height/2, 30, 30, app.loader.resources["hero"].texture, 10, 1);
     alien1 = new Alien(10, 10, 30, 30, app.loader.resources["enemy"].texture, 4, 100, 2);
     aliens.push(alien1);
     alien2 = new Alien(20, 10, 30, 30, app.loader.resources["enemy"].texture, 4, 100, 2);
