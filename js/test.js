@@ -1,11 +1,13 @@
 const WINDOW_WIDTH = $(window).innerHeight();
 const WINDOW_HEIGHT = $(window). innerWidth();
 
-let app, surface, texture, theGame, hero, alien1;
+let app, surface, texture, theGame, hero, alien1, alien2, alien3, alien4, alien5, alien6;
 let container = {};
 let keyTracker = {};
 let keys = {};
 let enemy = {};
+let aliens = [];
+
 
 class Human extends PIXI.Sprite{
     constructor(x, y, width, height, texture, speed, radius){
@@ -17,6 +19,13 @@ class Human extends PIXI.Sprite{
         this.height = height;
         this.speed = speed;
         this.radius = radius;
+        this.xVel = 0;
+        this.yVel = 0;
+    }
+
+    stayWithinArea(){
+        this.x = Math.max(0 + this.radius, Math.min(this.x + this.xVel, 1000 - this.radius));
+        this.y = Math.max(0 + this.radius, Math.min(this.y + this.yVel, 666 - this.radius));
     }
 }
 
@@ -45,10 +54,44 @@ class Alien extends PIXI.Sprite{
         this.yVel = this.speed * Math.sin(honeAngle);
     }
 
-    stayWithinBounds() {
+    //not used yet
+    collisionCircle(i, j){
+        let vx = i.x - j.x;
+        let vy = i.y - j.y;
+
+        let mag = vx * vx + vy *vy;
+
+        let totalRad = i.radius + j.radius;
+
+        return mag < (totalRad * totalRad);
+    }
+
+    //not used yet
+    noOverlap(i, j) {
+        let vx = i.x - j.x;
+        let vy = i.y - j.y;
+
+        let mag = vx * vx + vy *vy;
+
+        let totalRad = i.radius + j.radius;
+
+        if(this.collisionCircle(i, j)){
+            let overlap = totalRad - mag;
+
+            dx = vx / mag;
+            dy = vy / mag;
+
+            i.x += overlap * dx;
+            i.y += overlap * dy;
+        }
+    }
+    
+
+    stayWithinBounds(a, b) {
+        this.hone(a, b);
         //don't know if WINDOW_WIDTH/WINDOW_HEIGHT is the correct variable
-        this.x = Math.max(0 + this.radius, Math.min(this.x + this.xVel, WINDOW_WIDTH - this.radius));
-        this.y = Math.max(0 + this.radius, Math.min(this.y + this.yVel, WINDOW_HEIGHT - this.radius));
+        this.x = Math.max(0 + this.radius, Math.min(this.x + this.xVel, 1000 - this.radius));
+        this.y = Math.max(0 + this.radius, Math.min(this.y + this.yVel, 666 - this.radius));
     }
 }
 
@@ -73,8 +116,16 @@ let gameLoop = (delta) => {
         if(keys["68"]){
             hero.x += 5;
         }
+}
 
-    alien1.hone(hero.x, hero.y);
+let animate = () => {
+    hero.stayWithinArea();
+    alien1.stayWithinBounds(hero.x, hero.y);
+    alien2.stayWithinBounds(hero.x, hero.y);
+    alien3.stayWithinBounds(hero.x, hero.y);
+    alien4.stayWithinBounds(hero.x, hero.y);
+    alien5.stayWithinBounds(hero.x, hero.y);
+    alien6.stayWithinBounds(hero.x, hero.y);
 }
 
  //keyboard functions
@@ -101,6 +152,11 @@ let loadingFinished = () => {
 
     container.addChild(hero);
     container.addChild(alien1);
+    container.addChild(alien2);
+    container.addChild(alien3);
+    container.addChild(alien4);
+    container.addChild(alien5);
+    container.addChild(alien6);
 
     app.stage.addChild(container);
 
@@ -111,13 +167,25 @@ let loadingFinished = () => {
     window.addEventListener("keyup", keyReleased);
 
     app.ticker.add(gameLoop);
+    app.ticker.add(animate);
 
     keyTracker = document.querySelector("#keys");
 }
 
 let initialSpawn = () => {
-    hero = new Human(500, 550, 30, 30, app.loader.resources["hero"].texture, 8, 1);
-    alien1 = new Alien(app.view.width/2, app.view.height/2, 30, 30, app.loader.resources["enemy"].texture, 6, 100, 2);
+    hero = new Human(app.view.width/2, app.view.height/2, 30, 30, app.loader.resources["hero"].texture, 8, 1);
+    alien1 = new Alien(10, 10, 30, 30, app.loader.resources["enemy"].texture, 4, 100, 2);
+    aliens.push(alien1);
+    alien2 = new Alien(20, 10, 30, 30, app.loader.resources["enemy"].texture, 4, 100, 2);
+    aliens.push(alien2);
+    alien3 = new Alien(20, 20, 30, 30, app.loader.resources["enemy"].texture, 4, 100, 2);
+    aliens.push(alien3);
+    alien4 = new Alien(20, 30, 30, 30, app.loader.resources["enemy"].texture, 4, 100, 2);
+    aliens.push(alien4);
+    alien5 = new Alien(30, 30, 30, 30, app.loader.resources["enemy"].texture, 4, 100, 2);
+    aliens.push(alien5);
+    alien6 = new Alien(30, 40, 30, 30, app.loader.resources["enemy"].texture, 4, 100, 2);
+    aliens.push(alien6);
 }
 
 
